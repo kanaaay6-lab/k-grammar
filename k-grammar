@@ -1,0 +1,783 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>韓国語 文型フラッシュカード</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;700&family=Noto+Sans+JP:wght@300;400;700&display=swap');
+
+  :root {
+    --bg: #0f0f14;
+    --surface: #1a1a24;
+    --card-front: #1e1e2e;
+    --card-back: #12202e;
+    --accent: #7eb8f7;
+    --accent2: #f7c97e;
+    --accent3: #7ef7c0;
+    --text: #e8e8f0;
+    --muted: #7a7a9a;
+    --prio-a: #f7c97e;
+    --prio-b: #7eb8f7;
+    --prio-c: #7ef7c0;
+    --border: rgba(255,255,255,0.07);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans JP', 'Noto Sans KR', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 16px 40px;
+  }
+
+  header {
+    width: 100%;
+    max-width: 560px;
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  header h1 {
+    font-size: 14px;
+    font-weight: 400;
+    color: var(--muted);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  /* Priority filter */
+  .filter-row {
+    width: 100%;
+    max-width: 560px;
+    display: flex;
+    gap: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+  }
+
+  .filter-btn {
+    padding: 6px 16px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    font-size: 12px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.2s;
+    letter-spacing: 0.05em;
+  }
+
+  .filter-btn.active-a { background: var(--prio-a); color: #0f0f14; border-color: var(--prio-a); font-weight: 700; }
+  .filter-btn.active-b { background: var(--prio-b); color: #0f0f14; border-color: var(--prio-b); font-weight: 700; }
+  .filter-btn.active-c { background: var(--prio-c); color: #0f0f14; border-color: var(--prio-c); font-weight: 700; }
+  .filter-btn.active-all { background: var(--text); color: #0f0f14; border-color: var(--text); font-weight: 700; }
+
+  /* Progress */
+  .progress-bar-wrap {
+    width: 100%;
+    max-width: 560px;
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    margin-bottom: 24px;
+    overflow: hidden;
+  }
+
+  .progress-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent2));
+    border-radius: 2px;
+    transition: width 0.4s ease;
+  }
+
+  .progress-label {
+    width: 100%;
+    max-width: 560px;
+    font-size: 11px;
+    color: var(--muted);
+    text-align: right;
+    margin-bottom: 8px;
+    margin-top: -18px;
+    letter-spacing: 0.05em;
+  }
+
+  /* Card area */
+  .card-scene {
+    width: 100%;
+    max-width: 560px;
+    height: 300px;
+    perspective: 1000px;
+    margin-bottom: 24px;
+    cursor: pointer;
+  }
+
+  .card-inner {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.55s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .card-inner.flipped {
+    transform: rotateY(180deg);
+  }
+
+  .card-face {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 18px;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 28px;
+    border: 1px solid var(--border);
+  }
+
+  .card-front {
+    background: var(--card-front);
+  }
+
+  .card-back {
+    background: var(--card-back);
+    transform: rotateY(180deg);
+    border: 1px solid rgba(126, 184, 247, 0.2);
+  }
+
+  .prio-badge {
+    position: absolute;
+    top: 18px;
+    right: 18px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    padding: 3px 10px;
+    border-radius: 10px;
+  }
+
+  .prio-A { background: rgba(247,201,126,0.15); color: var(--prio-a); }
+  .prio-B { background: rgba(126,184,247,0.15); color: var(--prio-b); }
+  .prio-C { background: rgba(126,247,192,0.15); color: var(--prio-c); }
+
+  .card-front .phrase-kr {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 36px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 12px;
+    text-align: center;
+  }
+
+  .card-front .hint {
+    font-size: 12px;
+    color: var(--muted);
+    letter-spacing: 0.06em;
+  }
+
+  .tap-hint {
+    position: absolute;
+    bottom: 18px;
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 0.05em;
+  }
+
+  /* Back face */
+  .back-pattern {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--accent);
+    margin-bottom: 6px;
+    letter-spacing: 0.04em;
+    text-align: center;
+  }
+
+  .back-reading {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 14px;
+    letter-spacing: 0.05em;
+  }
+
+  .back-meaning {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--accent2);
+    margin-bottom: 14px;
+    text-align: center;
+  }
+
+  .divider {
+    width: 40px;
+    height: 1px;
+    background: var(--border);
+    margin-bottom: 14px;
+  }
+
+  .back-phrase-kr {
+    font-family: 'Noto Sans KR', sans-serif;
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--text);
+    text-align: center;
+    margin-bottom: 4px;
+  }
+
+  .back-phrase-reading {
+    font-size: 12px;
+    color: var(--muted);
+    text-align: center;
+    margin-bottom: 2px;
+  }
+
+  .back-phrase-meaning {
+    font-size: 13px;
+    color: var(--accent3);
+    text-align: center;
+  }
+
+  /* Controls */
+  .controls {
+    width: 100%;
+    max-width: 560px;
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-bottom: 16px;
+  }
+
+  .btn {
+    flex: 1;
+    max-width: 160px;
+    padding: 14px 10px;
+    border-radius: 12px;
+    border: none;
+    font-size: 13px;
+    font-family: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.04em;
+    transition: all 0.15s;
+  }
+
+  .btn:active { transform: scale(0.96); }
+
+  .btn-again { background: rgba(247, 126, 126, 0.18); color: #f77e7e; }
+  .btn-good  { background: rgba(126, 184, 247, 0.18); color: var(--accent); }
+  .btn-easy  { background: rgba(126, 247, 192, 0.18); color: var(--accent3); }
+
+  .btn-speak {
+    background: rgba(247,201,126,0.12);
+    color: var(--accent2);
+    border: 1px solid rgba(247,201,126,0.2);
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-family: inherit;
+    font-weight: 700;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    transition: all 0.15s;
+  }
+
+  .btn-speak:active { transform: scale(0.96); }
+
+  /* Info row below card */
+  .info-row {
+    width: 100%;
+    max-width: 560px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+  }
+
+  .info-pattern-name {
+    font-size: 12px;
+    color: var(--muted);
+  }
+
+  /* Speaking indicator */
+  .speaking-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent2);
+    display: inline-block;
+    margin-right: 6px;
+    animation: pulse 0.8s infinite alternate;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+
+  .speaking-dot.active { opacity: 1; }
+
+  @keyframes pulse {
+    from { transform: scale(0.8); opacity: 0.5; }
+    to   { transform: scale(1.2); opacity: 1; }
+  }
+
+  /* Shuffle toggle */
+  .shuffle-btn {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 11px;
+    font-family: inherit;
+    padding: 5px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    transition: all 0.2s;
+  }
+
+  .shuffle-btn.on { border-color: var(--accent3); color: var(--accent3); }
+
+  /* Stats */
+  .stats-row {
+    width: 100%;
+    max-width: 560px;
+    display: flex;
+    gap: 10px;
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 4px;
+    justify-content: center;
+  }
+
+  .stat { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+  .stat strong { font-size: 18px; font-weight: 700; color: var(--text); }
+
+  @media (prefers-reduced-motion: reduce) {
+    .card-inner { transition: none; }
+    .speaking-dot { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>韓国語 文型フラッシュカード</h1>
+  <button class="shuffle-btn" id="shuffleBtn" onclick="toggleShuffle()">🔀 シャッフル</button>
+</header>
+
+<div class="filter-row">
+  <button class="filter-btn active-all" id="f-all" onclick="setFilter('all')">すべて</button>
+  <button class="filter-btn" id="f-A" onclick="setFilter('A')">優先度A</button>
+  <button class="filter-btn" id="f-B" onclick="setFilter('B')">優先度B</button>
+  <button class="filter-btn" id="f-C" onclick="setFilter('C')">優先度C</button>
+</div>
+
+<div class="progress-bar-wrap">
+  <div class="progress-bar-fill" id="progressBar" style="width:0%"></div>
+</div>
+<div class="progress-label" id="progressLabel">1 / 1</div>
+
+<div class="card-scene" id="cardScene" onclick="flipCard()">
+  <div class="card-inner" id="cardInner">
+    <div class="card-face card-front" id="cardFront">
+      <span class="prio-badge prio-A" id="prioBadge">A</span>
+      <div class="phrase-kr" id="frontPhrase">있거든요</div>
+      <div class="hint">音声を聞いて意味を考えよう</div>
+      <div class="tap-hint">タップで答えを確認</div>
+    </div>
+    <div class="card-face card-back" id="cardBack">
+      <span class="prio-badge prio-A" id="prioBadgeBack">A</span>
+      <div class="back-pattern" id="backPattern">～거든요</div>
+      <div class="back-reading" id="backReading">〜ゴドゥンニョ</div>
+      <div class="back-meaning" id="backMeaning">「〜なんですよ」</div>
+      <div class="divider"></div>
+      <div class="back-phrase-kr" id="backPhrase">있거든요</div>
+      <div class="back-phrase-reading" id="backPhraseReading">イッコドゥンニョ</div>
+      <div class="back-phrase-meaning" id="backPhraseMeaning">あるんですよ</div>
+    </div>
+  </div>
+</div>
+
+<div class="info-row">
+  <span class="info-pattern-name" id="infoPattern">문형: ～거든요</span>
+  <span><span class="speaking-dot" id="speakingDot"></span><button class="btn-speak" onclick="speakCurrent()">🔊 もう一度</button></span>
+</div>
+
+<div class="controls" id="answerControls" style="display:none">
+  <button class="btn btn-again" onclick="answer('again')">もう一度</button>
+  <button class="btn btn-good" onclick="answer('good')">わかった</button>
+  <button class="btn btn-easy" onclick="answer('easy')">完璧！</button>
+</div>
+
+<div class="stats-row">
+  <div class="stat"><strong id="statAgain">0</strong>もう一度</div>
+  <div class="stat"><strong id="statGood">0</strong>わかった</div>
+  <div class="stat"><strong id="statEasy">0</strong>完璧！</div>
+</div>
+
+<script>
+// ===================== DATA =====================
+const patterns = [
+  // ===== Priority A =====
+  {
+    priority: 'A',
+    pattern: '～거든요',
+    reading: '〜ゴドゥンニョ',
+    meaning: '「〜なんですよ」「だって〜なんです」',
+    phrases: [
+      { kr: '있거든요', reading: 'イッコドゥンニョ', meaning: 'あるんですよ' },
+      { kr: '하거든요', reading: 'ハゴドゥンニョ', meaning: 'するんですよ' },
+      { kr: '먹거든요', reading: 'モッコドゥンニョ', meaning: '食べるんですよ' },
+      { kr: '나오거든요', reading: 'ナオゴドゥンニョ', meaning: '出てくるんですよ' },
+      { kr: '올려놓거든요', reading: 'オルリョノッコドゥンニョ', meaning: '置いてあるんですよ' },
+    ]
+  },
+  {
+    priority: 'A',
+    pattern: '～같아요',
+    reading: '〜カタヨ',
+    meaning: '「〜だと思う」「〜っぽい」',
+    phrases: [
+      { kr: '그런 것 같아요', reading: 'クロン ゴッ カタヨ', meaning: 'そういう感じがする' },
+      { kr: '있는 것 같아요', reading: 'インヌン ゴッ カタヨ', meaning: 'あると思う' },
+      { kr: '맛있는 것 같아요', reading: 'マシンヌン ゴッ カタヨ', meaning: 'おいしそう' },
+      { kr: '괜찮은 것 같아요', reading: 'クェンチャヌン ゴッ カタヨ', meaning: '大丈夫そう' },
+      { kr: '있을 것 같아요', reading: 'イスル ゴッ カタヨ', meaning: 'あるかも' },
+      { kr: '안 될 것 같아요', reading: 'アン デル ゴッ カタヨ', meaning: 'ダメな気がする' },
+    ]
+  },
+  {
+    priority: 'A',
+    pattern: '～보니까',
+    reading: '〜ボニッカ',
+    meaning: '「見てみたら」「やってみたら」',
+    phrases: [
+      { kr: '보니까', reading: 'ボニッカ', meaning: '見てみたら' },
+      { kr: '해보니까', reading: 'ヘボニッカ', meaning: 'やってみたら' },
+      { kr: '먹어보니까', reading: 'モゴボニッカ', meaning: '食べてみたら' },
+      { kr: '들어보니까', reading: 'トゥロボニッカ', meaning: '聞いてみたら' },
+    ]
+  },
+  {
+    priority: 'A',
+    pattern: '～해야 돼',
+    reading: '〜ヘヤ デ',
+    meaning: '「〜しないと」「〜しなければ」',
+    phrases: [
+      { kr: '해야 돼', reading: 'ヘヤ デ', meaning: 'しないと' },
+      { kr: '가야 돼', reading: 'カヤ デ', meaning: '行かないと' },
+      { kr: '먹어야 돼', reading: 'モゴヤ デ', meaning: '食べないと' },
+      { kr: '잡아야 돼', reading: 'チャバヤ デ', meaning: 'つかまないと' },
+      { kr: '만들어야 돼', reading: 'マンドゥロヤ デ', meaning: '作らないと' },
+    ]
+  },
+  {
+    priority: 'A',
+    pattern: '～할게요 / ～게요',
+    reading: '〜ハルケヨ／ケヨ',
+    meaning: '「〜しますね」（意志・約束）',
+    phrases: [
+      { kr: '해볼게요', reading: 'ヘボルケヨ', meaning: 'やってみますね' },
+      { kr: '보여드릴게요', reading: 'ポヨドゥリルケヨ', meaning: 'お見せしますね' },
+      { kr: '들어갈게요', reading: 'トゥロガルケヨ', meaning: '入りますね' },
+      { kr: '확인해 볼게요', reading: 'ファギネ ボルケヨ', meaning: '確認してみますね' },
+      { kr: '같이 해볼게요', reading: 'カチ ヘボルケヨ', meaning: '一緒にやってみますね' },
+    ]
+  },
+  {
+    priority: 'A',
+    pattern: '～싶어요',
+    reading: '〜シポヨ',
+    meaning: '「〜したい」',
+    phrases: [
+      { kr: '하고 싶어요', reading: 'ハゴ シポヨ', meaning: 'したい' },
+      { kr: '먹고 싶어요', reading: 'モッコ シポヨ', meaning: '食べたい' },
+      { kr: '해보고 싶어요', reading: 'ヘボゴ シポヨ', meaning: 'やってみたい' },
+      { kr: '만들어 보고 싶어요', reading: 'マンドゥロ ボゴ シポヨ', meaning: '作ってみたい' },
+      { kr: '구해 보고 싶어요', reading: 'クヘ ボゴ シポヨ', meaning: '手に入れてみたい' },
+    ]
+  },
+  // ===== Priority B =====
+  {
+    priority: 'B',
+    pattern: '～더라고요',
+    reading: '〜ドラゴヨ',
+    meaning: '「実際そうだった」（経験・発見）',
+    phrases: [
+      { kr: '그러더라고요', reading: 'クロドラゴヨ', meaning: 'そうだったんですよ' },
+      { kr: '있더라고요', reading: 'イッドラゴヨ', meaning: 'あったんですよ' },
+      { kr: '되더라고요', reading: 'テドラゴヨ', meaning: 'できたんですよ' },
+      { kr: '보이더라고요', reading: 'ポイドラゴヨ', meaning: '見えたんですよ' },
+    ]
+  },
+  {
+    priority: 'B',
+    pattern: '～잖아요',
+    reading: '〜チャナヨ',
+    meaning: '「〜じゃん」「〜でしょ」',
+    phrases: [
+      { kr: '그렇잖아요', reading: 'クロッチャナヨ', meaning: 'そうじゃないですか' },
+      { kr: '했잖아요', reading: 'ヘッチャナヨ', meaning: 'したじゃないですか' },
+      { kr: '있잖아요', reading: 'イッチャナヨ', meaning: 'あるじゃないですか' },
+      { kr: '모르잖아요', reading: 'モルジャナヨ', meaning: '知らないじゃないですか' },
+    ]
+  },
+  {
+    priority: 'B',
+    pattern: '～인데',
+    reading: '〜インデ',
+    meaning: '「〜なんだけど」',
+    phrases: [
+      { kr: '그런데', reading: 'クロンデ', meaning: 'ところで / でも' },
+      { kr: '문제인데', reading: 'ムンジェインデ', meaning: '問題なんだけど' },
+      { kr: '맛있는데', reading: 'マシンヌンデ', meaning: 'おいしいんだけど' },
+      { kr: '좋은데', reading: 'チョウンデ', meaning: 'いいんだけど' },
+      { kr: '아닌데', reading: 'アニンデ', meaning: 'じゃないんだけど' },
+    ]
+  },
+  {
+    priority: 'B',
+    pattern: '～려고',
+    reading: '〜リョゴ',
+    meaning: '「〜しようとして」「〜するために」',
+    phrases: [
+      { kr: '하려고', reading: 'ハリョゴ', meaning: 'しようとして' },
+      { kr: '먹으려고', reading: 'モグリョゴ', meaning: '食べようとして' },
+      { kr: '만들려고', reading: 'マンドゥルリョゴ', meaning: '作ろうとして' },
+      { kr: '가려고', reading: 'カリョゴ', meaning: '行こうとして' },
+    ]
+  },
+  {
+    priority: 'B',
+    pattern: '～면서',
+    reading: '〜ミョンソ',
+    meaning: '「〜しながら」',
+    phrases: [
+      { kr: '하면서', reading: 'ハミョンソ', meaning: 'しながら' },
+      { kr: '보면서', reading: 'ポミョンソ', meaning: '見ながら' },
+      { kr: '먹으면서', reading: 'モグミョンソ', meaning: '食べながら' },
+      { kr: '이야기하면서', reading: 'イヤギハミョンソ', meaning: '話しながら' },
+    ]
+  },
+  {
+    priority: 'B',
+    pattern: '～네요',
+    reading: '〜ネヨ',
+    meaning: '「おっ」「〜ですね」（感嘆・気づき）',
+    phrases: [
+      { kr: '그렇네요', reading: 'クロンネヨ', meaning: 'そうですね' },
+      { kr: '있네요', reading: 'インネヨ', meaning: 'ありますね' },
+      { kr: '좋네요', reading: 'チョンネヨ', meaning: 'いいですね' },
+      { kr: '맛있네요', reading: 'マシンネヨ', meaning: 'おいしいですね' },
+    ]
+  },
+  // ===== Priority C =====
+  {
+    priority: 'C',
+    pattern: '～나',
+    reading: '〜ナ',
+    meaning: '「〜かな？」（独り言風の疑問）',
+    phrases: [
+      { kr: '그런가?', reading: 'クロンガ?', meaning: 'そうかな？' },
+      { kr: '될까?', reading: 'テルッカ?', meaning: 'できるかな？' },
+      { kr: '맞나?', reading: 'マンナ?', meaning: '合ってるかな？' },
+      { kr: '없나?', reading: 'オンナ?', meaning: 'ないかな？' },
+    ]
+  },
+  {
+    priority: 'C',
+    pattern: '～죠',
+    reading: '〜チョ',
+    meaning: '「〜ですよね」（確認・同意）',
+    phrases: [
+      { kr: '그렇죠', reading: 'クロッチョ', meaning: 'そうですよね' },
+      { kr: '맞죠', reading: 'マッチョ', meaning: '合ってますよね' },
+      { kr: '하죠', reading: 'ハチョ', meaning: 'しますよね' },
+      { kr: '되죠', reading: 'テチョ', meaning: 'なりますよね' },
+    ]
+  },
+  {
+    priority: 'C',
+    pattern: '～군요',
+    reading: '〜グンニョ',
+    meaning: '「なるほど」「〜ですね」（納得）',
+    phrases: [
+      { kr: '그렇군요', reading: 'クロックンニョ', meaning: 'なるほど、そうですね' },
+      { kr: '되는군요', reading: 'テヌングンニョ', meaning: 'できるんですね' },
+    ]
+  },
+];
+
+// ===================== STATE =====================
+let allCards = [];
+let deck = [];
+let currentIndex = 0;
+let isFlipped = false;
+let shuffleOn = false;
+let currentFilter = 'all';
+let stats = { again: 0, good: 0, easy: 0 };
+
+function buildDeck(filter) {
+  allCards = [];
+  patterns.forEach(pat => {
+    if (filter !== 'all' && pat.priority !== filter) return;
+    pat.phrases.forEach(ph => {
+      allCards.push({ ...ph, pattern: pat.pattern, reading_pattern: pat.reading, meaning_pattern: pat.meaning, priority: pat.priority });
+    });
+  });
+  deck = [...allCards];
+  if (shuffleOn) shuffleDeck();
+  currentIndex = 0;
+}
+
+function shuffleDeck() {
+  for (let i = deck.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [deck[i], deck[j]] = [deck[j], deck[i]];
+  }
+}
+
+function setFilter(f) {
+  currentFilter = f;
+  ['all','A','B','C'].forEach(x => {
+    const btn = document.getElementById('f-' + x);
+    btn.className = 'filter-btn';
+    if (x === f) btn.classList.add('active-' + (f === 'all' ? 'all' : f));
+  });
+  buildDeck(f);
+  renderCard();
+  updateProgress();
+  resetFlip();
+}
+
+function toggleShuffle() {
+  shuffleOn = !shuffleOn;
+  const btn = document.getElementById('shuffleBtn');
+  btn.classList.toggle('on', shuffleOn);
+  buildDeck(currentFilter);
+  renderCard();
+  updateProgress();
+  resetFlip();
+}
+
+function renderCard() {
+  if (deck.length === 0) return;
+  const card = deck[currentIndex];
+  const p = card.priority;
+
+  // Front
+  document.getElementById('frontPhrase').textContent = card.kr;
+  document.getElementById('prioBadge').textContent = p;
+  document.getElementById('prioBadge').className = 'prio-badge prio-' + p;
+
+  // Back
+  document.getElementById('backPattern').textContent = card.pattern;
+  document.getElementById('backReading').textContent = card.reading_pattern;
+  document.getElementById('backMeaning').textContent = card.meaning_pattern;
+  document.getElementById('backPhrase').textContent = card.kr;
+  document.getElementById('backPhraseReading').textContent = card.reading;
+  document.getElementById('backPhraseMeaning').textContent = card.meaning;
+  document.getElementById('prioBadgeBack').textContent = p;
+  document.getElementById('prioBadgeBack').className = 'prio-badge prio-' + p;
+
+  // Info
+  document.getElementById('infoPattern').textContent = '文型: ' + card.pattern;
+
+  // Auto-speak after short delay
+  setTimeout(() => speakCurrent(), 400);
+}
+
+function updateProgress() {
+  const total = deck.length;
+  const curr = total === 0 ? 0 : currentIndex + 1;
+  const pct = total === 0 ? 0 : (currentIndex / total) * 100;
+  document.getElementById('progressBar').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = curr + ' / ' + total;
+}
+
+function flipCard() {
+  isFlipped = !isFlipped;
+  document.getElementById('cardInner').classList.toggle('flipped', isFlipped);
+  document.getElementById('answerControls').style.display = isFlipped ? 'flex' : 'none';
+}
+
+function resetFlip() {
+  isFlipped = false;
+  document.getElementById('cardInner').classList.remove('flipped');
+  document.getElementById('answerControls').style.display = 'none';
+}
+
+function answer(type) {
+  stats[type]++;
+  document.getElementById('statAgain').textContent = stats.again;
+  document.getElementById('statGood').textContent   = stats.good;
+  document.getElementById('statEasy').textContent   = stats.easy;
+
+  if (type === 'again') {
+    // Move to end of deck
+    const card = deck.splice(currentIndex, 1)[0];
+    deck.push(card);
+    if (currentIndex >= deck.length) currentIndex = 0;
+  } else {
+    currentIndex++;
+    if (currentIndex >= deck.length) {
+      // Loop
+      currentIndex = 0;
+      if (shuffleOn) shuffleDeck();
+    }
+  }
+  resetFlip();
+  renderCard();
+  updateProgress();
+}
+
+// ===================== TTS =====================
+let currentUtterance = null;
+
+function speakCurrent() {
+  if (deck.length === 0) return;
+  const card = deck[currentIndex];
+  speak(card.kr);
+}
+
+function speak(text) {
+  window.speechSynthesis.cancel();
+  const dot = document.getElementById('speakingDot');
+  const utt = new SpeechSynthesisUtterance(text);
+  utt.lang = 'ko-KR';
+  utt.rate = 0.85;
+  utt.pitch = 1.0;
+
+  // Pick a Korean voice if available
+  const voices = window.speechSynthesis.getVoices();
+  const krVoice = voices.find(v => v.lang.startsWith('ko'));
+  if (krVoice) utt.voice = krVoice;
+
+  utt.onstart = () => dot.classList.add('active');
+  utt.onend   = () => dot.classList.remove('active');
+  utt.onerror = () => dot.classList.remove('active');
+
+  window.speechSynthesis.speak(utt);
+  currentUtterance = utt;
+}
+
+// Voices may load async
+window.speechSynthesis.onvoiceschanged = () => {};
+
+// ===================== INIT =====================
+buildDeck('all');
+renderCard();
+updateProgress();
+</script>
+</body>
+</html>
