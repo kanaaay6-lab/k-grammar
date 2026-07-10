@@ -430,6 +430,71 @@
 // ===================== DATA =====================
 const patterns = [
   // ===== Priority A =====
+{
+  priority:'A',
+  pattern:'～아/어 보다',
+  reading:'〜ア/オ ボダ',
+  meaning:'「〜してみる」',
+  phrases:[
+    { kr:'해 봐', reading:'ヘ バ', meaning:'やってみて' },
+    { kr:'먹어 봐', reading:'モゴ バ', meaning:'食べてみて' },
+    { kr:'생각해 봐', reading:'センガケ バ', meaning:'考えてみて' },
+    { kr:'확인해 봐', reading:'ファギネ バ', meaning:'確認してみて' },
+  ]
+},
+{
+  priority:'A',
+  pattern:'～게 되다',
+  reading:'〜ゲ テダ',
+  meaning:'「〜するようになる」「〜になった」',
+  phrases:[
+    { kr:'알게 됐어요', reading:'アルゲ テッソヨ', meaning:'知るようになりました' },
+    { kr:'좋아하게 됐어요', reading:'チョアハゲ テッソヨ', meaning:'好きになりました' },
+    { kr:'유행하게 됐어요', reading:'ユヘンハゲ テッソヨ', meaning:'流行するようになりました' },
+  ]
+},
+{
+  priority:'A',
+  pattern:'～기 때문에',
+  reading:'〜ギ テムネ',
+  meaning:'「〜だから」「〜なので」',
+  phrases:[
+    { kr:'없기 때문에', reading:'オプキ テムネ', meaning:'ないので' },
+    { kr:'그렇기 때문에', reading:'クロッキ テムネ', meaning:'だから' },
+    { kr:'좋아하기 때문에', reading:'チョアハギ テムネ', meaning:'好きだから' },
+  ]
+},
+{
+  priority:'A',
+  pattern:'～더라도',
+  reading:'〜ドラド',
+  meaning:'「〜でも」「〜だったとしても」',
+  phrases:[
+    { kr:'평일을 맞이하더라도', reading:'ピョンイルル マジハドラド', meaning:'平日でも' },
+    { kr:'그렇게 하더라도', reading:'クロッケ ハドラド', meaning:'そうするとしても' },
+  ]
+},
+{
+  priority:'A',
+  pattern:'～뭐냐면',
+  reading:'〜ムォニャミョン',
+  meaning:'「何かというと」',
+  phrases:[
+    { kr:'문제가 뭐냐면', reading:'ムンジェガ ムォニャミョン', meaning:'問題は何かというと' },
+    { kr:'그게 뭐냐면', reading:'クゲ ムォニャミョン', meaning:'それは何かというと' },
+  ]
+},
+{
+  priority:'A',
+  pattern:'～려고 하다',
+  reading:'〜リョゴ ハダ',
+  meaning:'「〜しようと思う」「〜しようとしている」',
+  phrases:[
+    { kr:'해 보려고', reading:'ヘ ボリョゴ', meaning:'やってみようと思って' },
+    { kr:'방송하려고', reading:'パンソンハリョゴ', meaning:'配信しようと思って' },
+    { kr:'먹으려고', reading:'モグリョゴ', meaning:'食べようと思って' },
+  ]
+},
   {
     priority: 'A',
     pattern: '～거든요',
@@ -509,6 +574,38 @@ const patterns = [
     ]
   },
   // ===== Priority B =====
+
+{
+  priority:'B',
+  pattern:'～아/어 버리다',
+  reading:'〜ア/オ ボリダ',
+  meaning:'「〜してしまう」',
+  phrases:[
+    { kr:'먹어 버렸어', reading:'モゴ ボリョッソ', meaning:'食べちゃった' },
+    { kr:'도망가 버렸어', reading:'トマンガ ボリョッソ', meaning:'逃げちゃった' },
+    { kr:'써 버렸어요', reading:'ッソ ボリョッソヨ', meaning:'使ってしまいました' },
+  ]
+},
+{
+  priority:'B',
+  pattern:'～라고 생각하다',
+  reading:'〜ラゴ センガカダ',
+  meaning:'「〜だと思う」',
+  phrases:[
+    { kr:'나는 그렇게 생각해', reading:'ナヌン クロッケ センガケ', meaning:'私はそう思う' },
+    { kr:'좋다고 생각해', reading:'チョタゴ センガケ', meaning:'良いと思う' },
+  ]
+},
+{
+  priority:'B',
+  pattern:'～라고 느껴지다',
+  reading:'〜ラゴ ヌッキョジダ',
+  meaning:'「〜と感じる」',
+  phrases:[
+    { kr:'신기하다고 느껴진다', reading:'シンギハダゴ ヌッキョジンダ', meaning:'不思議だと感じる' },
+  ]
+},
+
   {
     priority: 'B',
     pattern: '～더라고요',
